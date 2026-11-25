@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026 开奖号码统计</title>
+  <style>
+    :root { color-scheme: light; font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color: #18262b; background: #f5f7f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { max-width: 1180px; margin: auto; padding: 0 28px 64px; }
+    header { border-bottom: 1px solid #dce5e2; background: #fff; }
+    .header-inner { max-width: 1180px; margin: auto; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .title-group { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+    h1 { font-size: 22px; line-height: 1.3; margin: 0; font-weight: 700; }
+    .subtitle { font-size: 13px; color: #66777b; }
+    .source { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #526469; white-space: nowrap; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #16947e; }
+    .source.failed .dot { background: #c85c4b; }
+    main { padding-top: 28px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: #dce5e2; border: 1px solid #dce5e2; }
+    .metric { background: #fff; padding: 19px 22px; min-width: 0; }
+    .metric-label { color: #64777b; font-size: 12px; margin-bottom: 8px; }
+    .metric-value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; }
+    .metric-note { color: #718084; font-size: 11px; margin-top: 6px; }
+    .cold-panel { background: #fff; border: 1px solid #dce5e2; padding: 22px 26px 24px; margin-bottom: 22px; }
+    .cold-panel .section-note { margin-bottom: 16px; }
+    .cold-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
+    .cold-item { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 13px 6px; border: 1px solid #e3ebe8; border-radius: 6px; background: #f9fbfa; }
+    .cold-item .number-badge { width: 40px; height: 40px; } .cold-item .number-badge .n { font-size: 16px; } .cold-item .number-badge .z { font-size: 10px; }
+    .cold-count { font-size: 12px; font-weight: 700; color: #5d7074; font-variant-numeric: tabular-nums; }
+    .controls { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 28px 0 18px; flex-wrap: wrap; }
+    .section-title { margin: 0 0 5px; font-size: 18px; }
+    .section-note { margin: 0; font-size: 12px; color: #687a7e; }
+    .inputs { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+    label { display: grid; gap: 5px; color: #5d7074; font-size: 11px; }
+    input { background: #fff; border: 1px solid #cbd9d5; border-radius: 4px; height: 36px; padding: 0 10px; color: #18262b; outline: none; }
+    input:focus { border-color: #118775; box-shadow: 0 0 0 2px #11877520; }
+    .issue-input { width: 98px; }
+    #search { width: 112px; }
+    .reset { border: 1px solid #cbd9d5; background: #fff; color: #395056; border-radius: 4px; height: 36px; padding: 0 13px; }
+    .reset:hover { background: #eef3f1; }
+    .error { border-left: 3px solid #bd5e52; background: #fff2ef; padding: 12px 15px; color: #9e4438; font-size: 13px; margin-bottom: 18px; }
+    [hidden] { display: none !important; }
+    .content { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 22px; align-items: start; }
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #dce5e2; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th { text-align: left; color: #64777b; font-size: 12px; font-weight: 600; background: #f9fbfa; border-bottom: 1px solid #dce5e2; white-space: nowrap; }
+    td, th { padding: 0 15px; height: 42px; }
+    td { border-bottom: 1px solid #edf1ef; font-size: 13px; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f8fbfa; }
+    .sort { border: 0; background: none; padding: 0; color: inherit; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+    .sort:hover, .sort.active { color: #087e6c; }
+    .sort-mark { font-size: 10px; width: 10px; }
+    .number { font-weight: 700; font-size: 14px; }
+    .el-metal { --el: #b8860b; color: #b8860b; }
+    .el-wood { --el: #4a8b3f; color: #4a8b3f; }
+    .el-water { --el: #2f6db0; color: #2f6db0; }
+    .el-fire { --el: #d64545; color: #d64545; }
+    .el-earth { --el: #9a7b4f; color: #9a7b4f; }
+    .number-badge, .candidate-ball { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 50%; background: #fff; background: color-mix(in srgb, var(--el, #cbd9d5) 10%, #fff); border: 1.5px solid var(--el, #cbd9d5); line-height: 1; box-sizing: border-box; vertical-align: middle; }
+    .number-badge .n, .candidate-ball .n { font-weight: 800; color: #263b40; font-variant-numeric: tabular-nums; }
+    .number-badge .z, .candidate-ball .z { font-weight: 700; color: var(--el, #147966); }
+    .number-badge { width: 34px; height: 34px; }
+    .number-badge .n { font-size: 14px; }
+    .number-badge .z { font-size: 9px; }
+    .legend { margin: 4px 0 0; color: #7b8b8e; font-size: 11px; line-height: 1.6; }
+    .legend span { font-weight: 700; margin: 0 2px; }
+    .bar-cell { min-width: 180px; }
+    .bar-line { display: flex; align-items: center; gap: 12px; }
+    .value { width: 26px; flex: 0 0 26px; text-align: right; font-weight: 700; }
+    .track { height: 7px; flex: 1; background: #edf2f0; border-radius: 10px; overflow: hidden; }
+    .fill { display: block; height: 100%; border-radius: inherit; background: #188a77; }
+    .fill.last { background: #dc8065; }
+    .insights { display: grid; gap: 18px; }
+    .insight { background: #fff; border: 1px solid #dce5e2; padding: 18px; }
+    .insight h3 { font-size: 13px; margin: 0 0 14px; }
+    .insight h3::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: #188a77; vertical-align: 1px; }
+    .insight.last h3::before { background: #dc8065; }
+    .rank-row { display: grid; grid-template-columns: 28px 26px 1fr 27px; align-items: center; gap: 9px; height: 31px; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .rank { color: #a0adb0; }
+    .rank-number { font-weight: 700; }
+    .rank-row .track { height: 5px; }
+    .rank-count { text-align: right; font-weight: 700; }
+    .footnote { margin-top: 16px; color: #7b8b8e; font-size: 11px; line-height: 1.6; }
+    .recommend { border-top: 4px solid #188a77; background: #fff; border-left: 1px solid #dce5e2; border-right: 1px solid #dce5e2; border-bottom: 1px solid #dce5e2; padding: 26px 30px 28px; margin-bottom: 22px; }
+    .recommend-top { display: flex; justify-content: space-between; align-items: start; gap: 16px; flex-wrap: wrap; }
+    .recommend-kicker { margin: 0 0 6px; color: #188a77; font-size: 12px; font-weight: 700; }
+    .recommend h2 { margin: 0; font-size: 22px; line-height: 1.35; }
+    .segments { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid #dce5e2; border-radius: 5px; background: #f5f7f6; }
+    .size-button { min-width: 77px; height: 34px; border: 0; border-radius: 3px; background: transparent; color: #566d70; font-size: 13px; }
+    .size-button.selected { background: #fff; color: #147966; box-shadow: 0 1px 4px #1c4e4030; font-weight: 700; }
+    .candidate-list { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0 18px; min-height: 56px; }
+    .candidate-ball { width: 56px; height: 56px; } .candidate-ball .n { font-size: 20px; } .candidate-ball .z { font-size: 12px; }
+    .recommend-note { margin: 0; font-size: 13px; color: #5d7074; line-height: 1.7; }
+    .recommend-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 28px; margin-top: 24px; border-top: 1px solid #e3ebe8; padding-top: 22px; }
+    .recommend-grid h3 { margin: 0 0 10px; font-size: 14px; }
+    .evidence-table { width: 100%; max-width: 500px; }
+    .evidence-table td, .evidence-table th { height: 36px; padding: 0 12px 0 0; }
+    .evidence-table th { background: #fff; }
+    .backtest { border-left: 1px solid #e3ebe8; padding-left: 24px; }
+    .backtest-primary { font-size: 21px; font-weight: 700; color: #18262b; font-variant-numeric: tabular-nums; }
+    .backtest-rate { color: #147966; font-weight: 700; margin-left: 8px; }
+    .backtest p { font-size: 12px; line-height: 1.65; color: #66777b; margin: 9px 0 0; }
+    .detail-toggle { display: block; margin: 0 0 20px; padding: 14px 0; border-top: 1px solid #dce5e2; border-bottom: 1px solid #dce5e2; color: #1f6259; font-weight: 700; cursor: pointer; }
+    .detail-toggle:hover { color: #0a846f; }
+    details[open] .detail-toggle { margin-bottom: 18px; }
+    .overlap { background: #fff; border: 1px solid #dce5e2; padding: 24px 30px; margin-bottom: 22px; }
+    .overlap h2 { margin: 0 0 4px; font-size: 17px; }
+    .overlap-subtitle { margin: 0 0 18px; color: #677a7e; font-size: 12px; }
+    .overlap-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 28px; }
+    .draw-pair { display: grid; gap: 9px; }
+    .draw-line { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 13px; }
+    .draw-line strong { min-width: 72px; color: #456166; }
+    .draw-line span { font-variant-numeric: tabular-nums; }
+    .repeat-result { margin-top: 6px; padding: 11px 13px; background: #f2f7f5; font-size: 13px; color: #235d53; }
+    .repeat-result strong { font-size: 17px; margin-right: 8px; }
+    .overlap-stats { border-left: 1px solid #e3ebe8; padding-left: 25px; display: grid; gap: 9px; }
+    .overlap-stat { display: flex; justify-content: space-between; gap: 12px; color: #5d7074; font-size: 12px; }
+    .overlap-stat strong { color: #18262b; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .overlap-foot { margin: 17px 0 0; color: #66777b; font-size: 12px; line-height: 1.6; }
+    .transitions { background: #fff; border: 1px solid #dce5e2; padding: 24px 30px; margin-bottom: 22px; }
+    .transitions h2 { margin: 0 0 5px; font-size: 17px; }
+    .transition-intro { margin: 0 0 18px; color: #66777b; font-size: 12px; line-height: 1.6; }
+    .transition-table-wrap { overflow-x: auto; }
+    .transition-table { min-width: 430px; }
+    .transition-table td, .transition-table th { height: 45px; padding: 0 11px; }
+    .transition-table th:first-child, .transition-table td:first-child { padding-left: 0; }
+    .transition-table td strong { display: block; font-size: 14px; }
+    .transition-summary { margin: 0 0 18px; padding: 12px 14px; background: #f2f7f5; color: #235d53; font-size: 13px; line-height: 1.6; }
+    .transition-table .special-row { background: #fff6f1; }
+    .special-tag { font-size: 11px; color: #b66348; margin-left: 8px; font-weight: 700; }
+    @media (max-width: 880px) { .overlap-grid { grid-template-columns: 1fr; gap: 18px; } .overlap-stats { border-left: 0; border-top: 1px solid #e3ebe8; padding: 16px 0 0; } }
+    @media (max-width: 880px) { .content { grid-template-columns: 1fr; } .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) { .shell { padding: 0 15px 40px; } .header-inner { padding: 18px 15px; align-items: start; flex-direction: column; gap: 8px; } .recommend, .overlap, .transitions { padding: 20px 16px; } .recommend h2 { font-size: 19px; } .candidate-ball { width: 46px; height: 46px; } .candidate-ball .n { font-size: 18px; } .candidate-ball .z { font-size: 10px; } .candidate-list { gap: 8px; } .recommend-grid { grid-template-columns: 1fr; gap: 18px; } .backtest { border-left: 0; border-top: 1px solid #e3ebe8; padding: 18px 0 0; } .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .metric { padding: 16px; } .metric-value { font-size: 22px; } .controls { align-items: stretch; } .inputs { width: 100%; } .inputs label { flex: 1; min-width: 85px; } .issue-input, #search { width: 100%; } .insights { grid-template-columns: 1fr; } td, th { padding: 0 11px; } .bar-cell { min-width: 130px; } }
+  </style>
+</head>
+<body>
+  <header><div class="header-inner"><div class="title-group"><h1>2026 开奖号码统计</h1><span class="subtitle">全部号码与末位号码分开统计</span></div><div class="source"><span class="dot"></span><span id="source-status">正在读取开奖数据</span></div></div></header>
+  <main class="shell">
+    <section class="recommend" aria-label="下期排除参考">
+      <div class="recommend-top"><div><p class="recommend-kicker">下期排除参考</p><h2><span id="target-issue">2026327</span> · 参考 <span id="candidate-count">12</span> 个不出现号码</h2></div><div class="segments" aria-label="候选数量"><button type="button" class="size-button" data-size="5" aria-pressed="false">5 个号码</button><button type="button" class="size-button" data-size="7" aria-pressed="false">7 个号码</button><button type="button" class="size-button selected" data-size="12" aria-pressed="true">12 个号码</button></div></div>
+      <div class="candidate-list" id="candidate-list" aria-live="polite"></div>
+      <p class="recommend-note">筛选规则：最近 20 期出现次数少的排前面；次数相同，再比较 2026 年累计次数，仍相同则随机决定顺序。这里判断的是号码不出现在当期任意 7 个位置，不只看最后一个。</p>
+      <div class="recommend-grid"><div><h3>这些号码为什么入选</h3><table class="evidence-table"><thead><tr><th>号码</th><th>近 20 期</th><th>2026 年累计</th></tr></thead><tbody id="candidate-evidence"></tbody></table></div><div class="backtest"><h3>历史回测</h3><div><span class="backtest-primary" id="backtest-result">--</span><span class="backtest-rate" id="backtest-rate">--</span></div><p>从第 51 期起逐期测试：只用该期之前的记录选号码，全部未出现在当期 7 个号码中才算成功。</p><p>随机选相同数量号码的理论成功率约 <strong id="random-rate">--</strong>。逐号来看，平均每个候选号码未出现在当期的比例为 <strong id="per-number-rate">--</strong>（随机应为 <strong id="per-number-baseline">--</strong>）。</p><p>显著性检验：z = <strong id="z-score">--</strong>，结论「<span id="significance">--</span>」。历史频次不保证下期结果，回测高低也不等于预测把握。</p></div></div>
+    </section>
+    <section class="transitions" aria-label="本期号码历史热度"><h2><span id="heat-issue">2026326</span> 这 7 个号码的历史热度</h2><p class="transition-intro">统计 2026 年文件中的 <span id="heat-total-draws">--</span> 期，包含本期。全部次数看 7 个位置；末位次数只看每期最后一个号码。</p><p class="transition-summary">这 7 个号码中，全年出现最多的是 <strong id="heat-top-number">--</strong>，共 <strong id="heat-top-count">--</strong> 次。</p><div class="transition-table-wrap"><table class="transition-table heat-table"><thead><tr><th>本期号码</th><th>2026 年总次数</th><th>近 20 期次数</th><th>作为末位次数</th></tr></thead><tbody id="heat-rows"></tbody></table></div></section>
+    <section class="overlap" aria-label="相邻两期重号统计"><h2>相邻两期有重号吗？</h2><p class="overlap-subtitle">比较每期 openCode 的全部 7 个号码，不区分位置。</p><div class="overlap-grid"><div class="draw-pair"><div class="draw-line"><strong id="overlap-current-issue">--</strong><span id="overlap-current-numbers">--</span></div><div class="draw-line"><strong id="overlap-previous-issue">--</strong><span id="overlap-previous-numbers">--</span></div><div class="repeat-result">本次重号 <strong id="overlap-current-count">--</strong><span id="overlap-current-list">--</span></div></div><div class="overlap-stats"><div class="overlap-stat"><span>2026 年相邻期无重号</span><strong><span id="overlap-zero-count">--</span>（<span id="overlap-zero-rate">--</span>）</strong></div><div class="overlap-stat"><span>相邻期至少有 1 个重号</span><strong id="overlap-any-count">--</strong></div><div class="overlap-stat"><span>上组无重号后，下组仍无重号</span><strong><span id="overlap-after-zero">--</span>（<span id="overlap-after-zero-rate">--</span>）</strong></div><div class="overlap-stat"><span>上一期特码（末位）在本期出现</span><strong><span id="overlap-special-rate">--</span>（随机 <span id="overlap-special-random">--</span>）</strong></div><div class="overlap-stat"><span>随机情况下无重号的理论比例</span><strong id="overlap-random-rate">--</strong></div></div></div><p class="overlap-foot">这些比例接近。上一期没有重号，并不能说明下一期更倾向继续不重号；不能仅据此排除上一期的 7 个号码。</p></section>
+    <div class="error" id="error" role="alert" hidden></div>
+    <details><summary class="detail-toggle">查看完整 01–49 号码统计与筛选</summary>
+    <section class="summary" aria-label="统计概览">
+      <div class="metric"><div class="metric-label">统计期数</div><div class="metric-value" id="draw-count">--</div><div class="metric-note" id="issue-range">期号范围</div></div>
+      <div class="metric"><div class="metric-label">全部号码样本</div><div class="metric-value" id="all-count">--</div><div class="metric-note">每期 7 个号码</div></div>
+      <div class="metric"><div class="metric-label">末位号码样本</div><div class="metric-value" id="last-count">--</div><div class="metric-note">每期 openCode 最后 1 个</div></div>
+      <div class="metric"><div class="metric-label">全部号码出现最多</div><div class="metric-value" id="top-number">--</div><div class="metric-note" id="top-count">--</div></div>
+    </section>
+    <section class="cold-panel" aria-label="全年出现次数最少的号码">
+      <h2 class="section-title">全年出现次数最少的 20 个号码</h2>
+      <p class="section-note">统计 2026 年全部期数，按 7 个位置的出现总次数从少到多排列，并列按号码升序（不受下方期号筛选影响）。</p>
+      <div class="cold-list" id="cold-list"></div>
+    </section>
+    <section class="controls" aria-label="筛选条件">
+      <div><h2 class="section-title">号码明细</h2><p class="section-note">点击表头排序；期号筛选只影响下方明细，上方参考固定使用截至最新一期的全部记录。</p></div>
+      <div class="inputs"><label>起始期号<input class="issue-input" id="issue-start" type="number" min="1" max="326" value="1"></label><label>结束期号<input class="issue-input" id="issue-end" type="number" min="1" max="326" value="326"></label><label>查找号码<input id="search" type="search" inputmode="numeric" placeholder="01–49" aria-label="查找号码"></label><button class="reset" id="reset" type="button">重置</button></div>
+    </section>
+    <section class="content">
+      <div class="table-wrap"><table><thead><tr><th><button type="button" class="sort active" data-sort="number">号码 <span class="sort-mark">↑</span></button></th><th><button type="button" class="sort" data-sort="all">全部出现 <span class="sort-mark"></span></button></th><th><button type="button" class="sort" data-sort="last">末位出现 <span class="sort-mark"></span></button></th></tr></thead><tbody id="number-rows"></tbody></table></div>
+      <aside class="insights" aria-label="排行"><div class="insight"><h3>全部号码 · 出现最多</h3><div id="all-rank"></div></div><div class="insight last"><h3>末位号码 · 出现最多</h3><div id="last-rank"></div></div></aside>
+    </section>
+    </details>
+    <p class="footnote">数据来源：history.macaumarksix.com 2026 年历史接口（页面打开时直接请求，失败自动降级到本地 test.json 存档）。参考号码基于历史出现次数排序，不保证下期不出现。</p>
+    <p class="legend">生肖五行：<span class="el-metal">金</span>猴·鸡　<span class="el-wood">木</span>虎·兔　<span class="el-water">水</span>鼠·猪　<span class="el-fire">火</span>蛇·马　<span class="el-earth">土</span>牛·龙·羊·狗</p>
+  </main>
+  <script src="./client.js"></script>
+</body>
+</html>
