@@ -75,6 +75,30 @@ function backtestExclusions(draws, size, minimumHistory = 50) {
   };
 }
 
+function exclusionHistory(draws, size, minimumHistory = 50) {
+  const ordered = [...draws].sort((a, b) => a.issue - b.issue);
+  const tested = Math.max(0, ordered.length - minimumHistory);
+  const rows = [];
+  let correct = 0;
+  for (let i = minimumHistory; i < ordered.length; i++) {
+    const candidates = exclusionCandidates(ordered.slice(0, i), size);
+    const numbers = ordered[i].numbers;
+    const predicted = candidates.map(({ number }) => number);
+    const hit = predicted.filter((number) => numbers.includes(number));
+    const ok = hit.length === 0;
+    if (ok) correct++;
+    rows.push({
+      issue: ordered[i].issue,
+      drawn: numbers,
+      predicted,
+      hit,
+      ok,
+      cumulativeRate: correct / (i - minimumHistory + 1),
+    });
+  }
+  return { rows, tested, correct, rate: tested ? correct / tested : 0 };
+}
+
 function adjacentOverlap(draws) {
   const ordered = [...draws].sort((a, b) => a.issue - b.issue);
   const histogram = Array(8).fill(0);
@@ -182,6 +206,22 @@ function renderOverlap() {
   $('overlap-special-random').textContent = `${(result.specialBaseline * 100).toFixed(1)}%`;
 }
 
+function renderHistory() {
+  if (!state.draws.length) return;
+  const history = exclusionHistory(state.draws, state.size);
+  $('history-tested').textContent = history.tested;
+  $('history-correct').textContent = history.correct;
+  $('history-rate').textContent = `${(history.rate * 100).toFixed(1)}%`;
+  $('history-rows').innerHTML = [...history.rows].reverse().map((row) => {
+    const issue = `2026${String(row.issue).padStart(3, '0')}`;
+    const predicted = row.predicted.map((number) => numberBall(number, 'history-ball')).join('');
+    const drawn = row.drawn.map((number) => numberBall(number, 'history-ball' + (row.hit.includes(number) ? ' miss' : ''))).join('');
+    const result = row.ok ? '✓ 全部没出现' : `✗ 出现 ${row.hit.length} 个`;
+    const rate = `${(row.cumulativeRate * 100).toFixed(1)}%`;
+    return `<tr class="${row.ok ? 'ok' : 'fail'}"><td>${issue}</td><td>${predicted}</td><td>${drawn}</td><td>${result}</td><td>${rate}</td></tr>`;
+  }).join('');
+}
+
 function renderCurrentHeat() {
   const latest = [...state.draws].sort((a, b) => b.issue - a.issue)[0];
   if (!latest) return;
@@ -280,6 +320,7 @@ document.querySelectorAll('.sort').forEach((button) => button.addEventListener('
 document.querySelectorAll('.size-button').forEach((button) => button.addEventListener('click', () => {
   state.size = Number(button.dataset.size);
   renderRecommendation();
+  renderHistory();
 }));
 
 ['issue-start', 'issue-end', 'search'].forEach((id) => $(id).addEventListener('input', render));
@@ -307,6 +348,7 @@ function applyDraws(updated, sourceLabel) {
     renderCurrentHeat();
     renderOverlap();
     renderColdNumbers();
+    renderHistory();
     render();
   }
 }
