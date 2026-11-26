@@ -1,4 +1,4 @@
-import { parseDraws, summarize, exclusionCandidates, backtestExclusions, adjacentOverlap, zodiacFor, zodiacElement } from './stats.mjs';
+import { parseDraws, summarize, exclusionCandidates, backtestExclusions, exclusionHistory, adjacentOverlap, zodiacFor, zodiacElement } from './stats.mjs';
 
 const $ = (id) => document.getElementById(id);
 const formatNumber = (value) => String(value).padStart(2, '0');

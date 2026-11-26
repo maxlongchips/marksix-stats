@@ -61,9 +61,9 @@
     .el-water { --el: #2f6db0; color: #2f6db0; }
     .el-fire { --el: #d64545; color: #d64545; }
     .el-earth { --el: #9a7b4f; color: #9a7b4f; }
-    .number-badge, .candidate-ball { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 50%; background: #fff; background: color-mix(in srgb, var(--el, #cbd9d5) 10%, #fff); border: 1.5px solid var(--el, #cbd9d5); line-height: 1; box-sizing: border-box; vertical-align: middle; }
-    .number-badge .n, .candidate-ball .n { font-weight: 800; color: #263b40; font-variant-numeric: tabular-nums; }
-    .number-badge .z, .candidate-ball .z { font-weight: 700; color: var(--el, #147966); }
+    .number-badge, .candidate-ball, .history-ball { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 50%; background: #fff; background: color-mix(in srgb, var(--el, #cbd9d5) 10%, #fff); border: 1.5px solid var(--el, #cbd9d5); line-height: 1; box-sizing: border-box; vertical-align: middle; }
+    .number-badge .n, .candidate-ball .n, .history-ball .n { font-weight: 800; color: #263b40; font-variant-numeric: tabular-nums; }
+    .number-badge .z, .candidate-ball .z, .history-ball .z { font-weight: 700; color: var(--el, #147966); }
     .number-badge { width: 34px; height: 34px; }
     .number-badge .n { font-size: 14px; }
     .number-badge .z { font-size: 9px; }
@@ -160,7 +160,7 @@
       <p class="recommend-note">筛选规则：最近 20 期出现次数少的排前面；次数相同，再比较 2026 年累计次数，仍相同则随机决定顺序。这里判断的是号码不出现在当期任意 7 个位置，不只看最后一个。</p>
       <div class="recommend-grid"><div><h3>这些号码为什么入选</h3><table class="evidence-table"><thead><tr><th>号码</th><th>近 20 期</th><th>2026 年累计</th></tr></thead><tbody id="candidate-evidence"></tbody></table></div><div class="backtest"><h3>历史回测</h3><div><span class="backtest-primary" id="backtest-result">--</span><span class="backtest-rate" id="backtest-rate">--</span></div><p>从第 51 期起逐期测试：只用该期之前的记录选号码，全部未出现在当期 7 个号码中才算成功。</p><p>随机选相同数量号码的理论成功率约 <strong id="random-rate">--</strong>。逐号来看，平均每个候选号码未出现在当期的比例为 <strong id="per-number-rate">--</strong>（随机应为 <strong id="per-number-baseline">--</strong>）。</p><p>显著性检验：z = <strong id="z-score">--</strong>，结论「<span id="significance">--</span>」。历史频次不保证下期结果，回测高低也不等于预测把握。</p></div></div>
     </section>
-    <details class="history" id="history-detail">
+    <details class="history" id="history-detail" open>
       <summary class="detail-toggle">查看逐期历史记录（监测成功率）</summary>
       <section class="history-panel" aria-label="逐期历史记录">
         <p class="history-summary">共测试 <strong id="history-tested">--</strong> 期 · 成功 <strong id="history-correct">--</strong> 期 · 成功率 <strong id="history-rate">--</strong></p>
