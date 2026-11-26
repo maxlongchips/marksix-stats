@@ -73,6 +73,30 @@ export function backtestExclusions(draws, size, minimumHistory = 50) {
   };
 }
 
+export function exclusionHistory(draws, size, minimumHistory = 50) {
+  const ordered = [...draws].sort((a, b) => a.issue - b.issue);
+  const tested = Math.max(0, ordered.length - minimumHistory);
+  const rows = [];
+  let correct = 0;
+  for (let i = minimumHistory; i < ordered.length; i++) {
+    const candidates = exclusionCandidates(ordered.slice(0, i), size);
+    const numbers = ordered[i].numbers;
+    const predicted = candidates.map(({ number }) => number);
+    const hit = predicted.filter((number) => numbers.includes(number));
+    const ok = hit.length === 0;
+    if (ok) correct++;
+    rows.push({
+      issue: ordered[i].issue,
+      drawn: numbers,
+      predicted,
+      hit,
+      ok,
+      cumulativeRate: correct / (i - minimumHistory + 1),
+    });
+  }
+  return { rows, tested, correct, rate: tested ? correct / tested : 0 };
+}
+
 export function adjacentOverlap(draws) {
   const ordered = [...draws].sort((a, b) => a.issue - b.issue);
   const histogram = Array(8).fill(0);
