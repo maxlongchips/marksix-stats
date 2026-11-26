@@ -133,6 +133,19 @@
     .transition-summary { margin: 0 0 18px; padding: 12px 14px; background: #f2f7f5; color: #235d53; font-size: 13px; line-height: 1.6; }
     .transition-table .special-row { background: #fff6f1; }
     .special-tag { font-size: 11px; color: #b66348; margin-left: 8px; font-weight: 700; }
+    .history { margin-bottom: 22px; }
+    .history-panel { background: #fff; padding: 20px 24px; }
+    .history-summary { font-size: 13px; color: #5d7074; margin: 0 0 14px; }
+    .history-summary strong { color: #147966; }
+    .history-table-wrap { max-height: 520px; overflow-y: auto; border: 1px solid #e3ebe8; }
+    .history-table { min-width: 620px; }
+    .history-table td, .history-table th { height: 40px; padding: 0 12px; white-space: nowrap; }
+    .history-table tbody tr.ok td { background: #f4faf7; }
+    .history-table tbody tr.fail td { background: #fdf5f3; }
+    .history-ball { width: 30px; height: 30px; }
+    .history-ball .n { font-size: 12px; }
+    .history-ball .z { font-size: 8px; }
+    .history-ball.miss { outline: 2px solid #d64545; outline-offset: 1px; }
     @media (max-width: 880px) { .overlap-grid { grid-template-columns: 1fr; gap: 18px; } .overlap-stats { border-left: 0; border-top: 1px solid #e3ebe8; padding: 16px 0 0; } }
     @media (max-width: 880px) { .content { grid-template-columns: 1fr; } .insights { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 620px) { .shell { padding: 0 15px 40px; } .header-inner { padding: 18px 15px; align-items: start; flex-direction: column; gap: 8px; } .recommend, .overlap, .transitions { padding: 20px 16px; } .recommend h2 { font-size: 19px; } .candidate-ball { width: 46px; height: 46px; } .candidate-ball .n { font-size: 18px; } .candidate-ball .z { font-size: 10px; } .candidate-list { gap: 8px; } .recommend-grid { grid-template-columns: 1fr; gap: 18px; } .backtest { border-left: 0; border-top: 1px solid #e3ebe8; padding: 18px 0 0; } .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .metric { padding: 16px; } .metric-value { font-size: 22px; } .controls { align-items: stretch; } .inputs { width: 100%; } .inputs label { flex: 1; min-width: 85px; } .issue-input, #search { width: 100%; } .insights { grid-template-columns: 1fr; } td, th { padding: 0 11px; } .bar-cell { min-width: 130px; } }
@@ -147,6 +160,18 @@
       <p class="recommend-note">筛选规则：最近 20 期出现次数少的排前面；次数相同，再比较 2026 年累计次数，仍相同则随机决定顺序。这里判断的是号码不出现在当期任意 7 个位置，不只看最后一个。</p>
       <div class="recommend-grid"><div><h3>这些号码为什么入选</h3><table class="evidence-table"><thead><tr><th>号码</th><th>近 20 期</th><th>2026 年累计</th></tr></thead><tbody id="candidate-evidence"></tbody></table></div><div class="backtest"><h3>历史回测</h3><div><span class="backtest-primary" id="backtest-result">--</span><span class="backtest-rate" id="backtest-rate">--</span></div><p>从第 51 期起逐期测试：只用该期之前的记录选号码，全部未出现在当期 7 个号码中才算成功。</p><p>随机选相同数量号码的理论成功率约 <strong id="random-rate">--</strong>。逐号来看，平均每个候选号码未出现在当期的比例为 <strong id="per-number-rate">--</strong>（随机应为 <strong id="per-number-baseline">--</strong>）。</p><p>显著性检验：z = <strong id="z-score">--</strong>，结论「<span id="significance">--</span>」。历史频次不保证下期结果，回测高低也不等于预测把握。</p></div></div>
     </section>
+    <details class="history" id="history-detail">
+      <summary class="detail-toggle">查看逐期历史记录（监测成功率）</summary>
+      <section class="history-panel" aria-label="逐期历史记录">
+        <p class="history-summary">共测试 <strong id="history-tested">--</strong> 期 · 成功 <strong id="history-correct">--</strong> 期 · 成功率 <strong id="history-rate">--</strong></p>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead><tr><th>期号</th><th>预测的不出现号码</th><th>实际开出</th><th>结果</th><th>截至该期累计成功率</th></tr></thead>
+            <tbody id="history-rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </details>
     <section class="transitions" aria-label="本期号码历史热度"><h2><span id="heat-issue">2026326</span> 这 7 个号码的历史热度</h2><p class="transition-intro">统计 2026 年文件中的 <span id="heat-total-draws">--</span> 期，包含本期。全部次数看 7 个位置；末位次数只看每期最后一个号码。</p><p class="transition-summary">这 7 个号码中，全年出现最多的是 <strong id="heat-top-number">--</strong>，共 <strong id="heat-top-count">--</strong> 次。</p><div class="transition-table-wrap"><table class="transition-table heat-table"><thead><tr><th>本期号码</th><th>2026 年总次数</th><th>近 20 期次数</th><th>作为末位次数</th></tr></thead><tbody id="heat-rows"></tbody></table></div></section>
     <section class="overlap" aria-label="相邻两期重号统计"><h2>相邻两期有重号吗？</h2><p class="overlap-subtitle">比较每期 openCode 的全部 7 个号码，不区分位置。</p><div class="overlap-grid"><div class="draw-pair"><div class="draw-line"><strong id="overlap-current-issue">--</strong><span id="overlap-current-numbers">--</span></div><div class="draw-line"><strong id="overlap-previous-issue">--</strong><span id="overlap-previous-numbers">--</span></div><div class="repeat-result">本次重号 <strong id="overlap-current-count">--</strong><span id="overlap-current-list">--</span></div></div><div class="overlap-stats"><div class="overlap-stat"><span>2026 年相邻期无重号</span><strong><span id="overlap-zero-count">--</span>（<span id="overlap-zero-rate">--</span>）</strong></div><div class="overlap-stat"><span>相邻期至少有 1 个重号</span><strong id="overlap-any-count">--</strong></div><div class="overlap-stat"><span>上组无重号后，下组仍无重号</span><strong><span id="overlap-after-zero">--</span>（<span id="overlap-after-zero-rate">--</span>）</strong></div><div class="overlap-stat"><span>上一期特码（末位）在本期出现</span><strong><span id="overlap-special-rate">--</span>（随机 <span id="overlap-special-random">--</span>）</strong></div><div class="overlap-stat"><span>随机情况下无重号的理论比例</span><strong id="overlap-random-rate">--</strong></div></div></div><p class="overlap-foot">这些比例接近。上一期没有重号，并不能说明下一期更倾向继续不重号；不能仅据此排除上一期的 7 个号码。</p></section>
     <div class="error" id="error" role="alert" hidden></div>

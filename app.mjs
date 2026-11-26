@@ -55,6 +55,22 @@ function renderOverlap() {
   $('overlap-special-random').textContent = `${(result.specialBaseline * 100).toFixed(1)}%`;
 }
 
+function renderHistory() {
+  if (!state.draws.length) return;
+  const history = exclusionHistory(state.draws, state.size);
+  $('history-tested').textContent = history.tested;
+  $('history-correct').textContent = history.correct;
+  $('history-rate').textContent = `${(history.rate * 100).toFixed(1)}%`;
+  $('history-rows').innerHTML = [...history.rows].reverse().map((row) => {
+    const issue = `2026${String(row.issue).padStart(3, '0')}`;
+    const predicted = row.predicted.map((number) => numberBall(number, 'history-ball')).join('');
+    const drawn = row.drawn.map((number) => numberBall(number, 'history-ball' + (row.hit.includes(number) ? ' miss' : ''))).join('');
+    const result = row.ok ? '✓ 全部没出现' : `✗ 出现 ${row.hit.length} 个`;
+    const rate = `${(row.cumulativeRate * 100).toFixed(1)}%`;
+    return `<tr class="${row.ok ? 'ok' : 'fail'}"><td>${issue}</td><td>${predicted}</td><td>${drawn}</td><td>${result}</td><td>${rate}</td></tr>`;
+  }).join('');
+}
+
 function renderCurrentHeat() {
   const latest = [...state.draws].sort((a, b) => b.issue - a.issue)[0];
   if (!latest) return;
@@ -153,6 +169,7 @@ document.querySelectorAll('.sort').forEach((button) => button.addEventListener('
 document.querySelectorAll('.size-button').forEach((button) => button.addEventListener('click', () => {
   state.size = Number(button.dataset.size);
   renderRecommendation();
+  renderHistory();
 }));
 
 ['issue-start', 'issue-end', 'search'].forEach((id) => $(id).addEventListener('input', render));
@@ -180,6 +197,7 @@ function applyDraws(updated, sourceLabel) {
     renderCurrentHeat();
     renderOverlap();
     renderColdNumbers();
+    renderHistory();
     render();
   }
 }
